@@ -5,12 +5,10 @@ import paramiko
 from websocket import create_connection
 from time import sleep
 
-HOSTNAME = "192.168.0.117"
+HOSTNAME = "192.168.1.1"
 USERNAME = "deepracer"
 PASSWORD = "deepracer"
 SERVER_URL = "ws://localhost:8000/ws/0"
-
-p = re.compile('msg: "Setting throttle to (\d+\.\d+)"')
 
 def websocket_connect():
     while True:
@@ -32,10 +30,28 @@ try:
 
     print("connected")
 
-    stdin, stdout, stderr = client.exec_command("source /opt/ros/kinetic/setup.bash; rostopic echo /rosout_agg")
+    # Check version
+    p = re.compile('VERSION_ID="(\d+\.\d+)"')
+    stdin, stdout, stderr = client.exec_command("cat /etc/os-release")
     stdin.close()
     for line in iter(lambda: stdout.readline(2048), ""):
-        # print(line, end="")
+        if "VERSION_ID" in line:
+            match = p.match(line)
+            version = match.group(1)
+
+    print("Version: %s" % version)
+
+    if version == "20.04":
+        ros_command = "source /opt/ros/foxy/setup.bash; ros2 topic echo /rosout"
+    else:
+        # 16.04
+        ros_command = "source /opt/ros/kinetic/setup.bash; rostopic echo /rosout_agg"
+
+    p = re.compile('msg: "Setting throttle to (\d+\.\d+)"')
+    stdin, stdout, stderr = client.exec_command(ros_command)
+    stdin.close()
+    for line in iter(lambda: stdout.readline(2048), ""):
+        print(line, end="")
         if "Setting throttle to" in line:
             match = p.match(line)
             throttle_raw = float(match.group(1))
