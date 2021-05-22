@@ -25,29 +25,24 @@ The server can be installed anywhere, locally or elsewhere (I use a micro EC2 in
 
 Unless you are running the server on the same machine as your web browser you must edit `server/html/index.html` and set `websocket_url` to the IP of the machine running the server.
 
-```
-source venv/bin/activate (if not already active)
-cd server
-uvicorn main:app --reload
-```
+
+    source venv/bin/activate (if not already active)
+    cd server
+    uvicorn main:app --reload
 
 Note that by default it will only listen on http://127.0.0.1:8000
 
 If you want the server to be exposed publically then use the following command instead:
 
-```
-uvicorn main:app --host 0.0.0.0 --port 8000
-```
+    uvicorn main:app --host 0.0.0.0 --port 8000
 
-### Client 
+### Client
 
 Do this in another terminal window.
 
 Edit telemetry_client.py and set the car IP and password. You also need to set the hostname/IP of the server URL. If you're running the server locally then you can leave this at it's default.
 
-```
-source venv/bin/activate
-python ./telemetry_client.py
-```
+    source venv/bin/activate
+    python ./telemetry_client.py
 
 Now browse to the URL of the server (defaults to http://127.0.0.1:8000) to view the gauge. When you change the throttle via the standard DeepRacer web interface the gauge should update.
